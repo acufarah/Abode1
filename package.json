@@ -1,0 +1,22 @@
+{
+  "name": "abode1",
+  "version": "1.0.0",
+  "description": "Collect furniture and houseware for homeless housing",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.9",
+    "sequelize": "^4.42.0",
+    "sequelize-cli": "^5.4.0",
+    "sqlite3": "^4.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
