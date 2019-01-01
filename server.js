@@ -3,6 +3,32 @@ const app = express();
 const sqlite= require('sqlite3');
 const db= new sqlite.Database('./database.sqlite3', (err)=> console.log(err));
 
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize('database', 'username', 'password', {
+  host: 'localhost',
+  dialect: 'sqlite',
+  operatorsAliases: false,
+
+  pool: {
+    max: 5,
+    min: 0,
+    acquire: 30000,
+    idle: 10000
+  },
+
+  // SQLite only
+  storage: './database.sqlite3'
+});
+
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
+
 app.get('/', function (req, res) {
    res.send('Hello World');
 })

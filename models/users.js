@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const Users = sequelize.define('Users', {
+  const User = sequelize.define('User', {
     organization: DataTypes.STRING,
     firstName: {
       type: DataTypes.STRING,
@@ -72,8 +72,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   } 
 });
-  Users.associate = function(models) {
+  User.associate = function(models) {
     // associations can be defined here
+    this.hasMany(Item);
   };
-  return Users;
+  return User;
 };
+
+module.exports= {User};
