@@ -14,4 +14,3 @@ module.exports = (sequelize, DataTypes) => {
   return Item;
 };
 
-module.exports= {Item};

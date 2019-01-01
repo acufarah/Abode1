@@ -1,9 +1,15 @@
 const Sequelize = require('sequelize');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
+    uuid: {
+      type: DataTypes.UUID,
+      primaryKey: true
+    },
     organization: DataTypes.STRING,
     firstName: {
       type: DataTypes.STRING,
@@ -44,6 +50,14 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true
     },
+    role: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      unique: false
+    },
+    token: {
+      type: DataTypes.STRING,
+    },
     phone: DataTypes.STRING,
     address: DataTypes.STRING,
     city: DataTypes.STRING,
@@ -69,6 +83,25 @@ module.exports = (sequelize, DataTypes) => {
       const salt = this.password.split('$')[0];
       const hash = crypto.pbkdf2Sync(password, salt, 2048, 32, 'sha512').toString('hex');
       return hash === originalHash;
+    },
+    generateToken: function(cb) {
+      var user = this;
+      var token = jwt.sign(user.uuid.toHexString(), process.env.SECRET)
+      user.token = token;
+      user.save(function(err,user){
+          if(err) return cb(err);
+          cb(null,user);
+    })
+    },
+    findByToken: function(token,cb) {
+      var user = this;
+
+      jwt.verify(token, process.env.SECRET, function(err,decode){
+        user.findOne({where: {'uuid':decode, 'token':token }}, function(err,user){
+          if(err) return cb(err);
+          cb(null, user);
+        })
+      })
     }
   } 
 });
@@ -79,4 +112,3 @@ module.exports = (sequelize, DataTypes) => {
   return User;
 };
 
-module.exports= {User};
