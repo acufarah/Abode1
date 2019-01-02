@@ -57,6 +57,18 @@ app.get('/', function (req, res) {
 //                       USERS
 //============================================================
 
+app.get('/api/users/auth',auth,(req,res)=>{
+
+    res.status(200).json({
+            isAdmin: req.user.role === 0 ? false : true,
+            isAuth: true,
+            email: req.user.email,
+            firstName: req.user.firstName,
+            lastName: req.user.lastname,
+            role: req.user.role
+    })
+})
+
 app.post('/api/users/register',(req,res)=>{
 
     const firstName = req.body.firstName;
@@ -70,7 +82,7 @@ app.post('/api/users/register',(req,res)=>{
     const state = req.body.state;
     const zip = req.body.zip;
 
-    User.create({
+    const user = User.create({
       firstName,
       lastName,
       email,
@@ -96,6 +108,37 @@ app.post('/api/users/register',(req,res)=>{
 
 });
 
+app.post('/api/users/login',(req,res)=>{
+    User.findOne({where: {'email': req.body.email}},(err, user)=>{
+        if(!user) return res.json({loginSuccess:false, 
+            message:"Email not found, authorization failed."});
+
+        user.validPassword(req.body.password,(err,isMatch)=>{
+            if(!isMatch) return res.json({loginSuccess: false,
+            message:"Incorrect password, authorization failed."});
+
+            user.generateToken((err,user)=>{
+                if(err) return res.status(400).send(err);
+                res.cookie('w_auth', user.token).status(200).json({
+                    loginSuccess:true
+                })
+            })
+        })
+    })
+})
+
+app.get('/api/users/logout',auth,(req,res)=>{
+    
+    let user = User.find({where: { uuid: req.user.uuid}});
+
+    user.update({ token: ''}).then((err, doc)=>{
+        if(err) return res.json({ success:false,err});
+        res.status(200).json({
+            success:true
+        })
+    })
+
+})
 
 var server = app.listen(8081, function () {
     var host = server.address().address
