@@ -31,6 +31,14 @@ const sequelize = new Sequelize('database', 'username', 'password', {
   storage: './database.sqlite3'
 });
 
+sequelize.sync({
+    force: true,
+    alter: true
+})
+    .then( ()=>{
+        console.log('Item and User table have been created with SQLite.')
+    })
+
 sequelize
   .authenticate()
   .then(() => {
@@ -42,8 +50,12 @@ sequelize
 
 
 //Models
-const { User } = require('./models/users');
-const { Item } = require('./models/items');
+
+var model = require('./models');
+const User = sequelize.import('./models/users')
+// var User = sequelize.import('./models/users')
+// const { User } = require('./models/users');
+// const { Item } = require('./models/items');
 
 //Middleware
 const { auth } = require('./middleware/auth');
@@ -56,6 +68,7 @@ app.get('/', function (req, res) {
 //============================================================
 //                       USERS
 //============================================================
+
 
 app.get('/api/users/auth',auth,(req,res)=>{
 
@@ -83,30 +96,33 @@ app.post('/api/users/register',(req,res)=>{
     const zip = req.body.zip;
 
     const user = User.create({
-      firstName,
-      lastName,
-      email,
-      password,
-      organization,
-      phone,
-      address,
-      city,
-      state,
-      zip
-    })
-      .then(newUser => {
-        res.json(newUser);
-      }).end(function(err, res){
-        if (err) {
-          // handle error
-          return res.json({registerSuccess: false, err});
-        } else {
-          // handle success
-          res.status(200).json({registerSuccess: true});
-        }
-    })
-
-});
+        firstName,
+        lastName,
+        email,
+        password,
+        organization,
+        phone,
+        address,
+        city,
+        state,
+        zip
+      })
+        .then(newUser => {
+          console.log(`New user ${newUser.lastName}, with id ${newUser.uuid} has been created.`);
+          res.json(newUser);
+        })
+        // .end(function(err, res){
+        //   if (err) {
+        //     // handle error
+        //     return res.json({registerSuccess: false, err});
+        //   } else {
+        //     // handle success
+        //     res.status(200).json({registerSuccess: true});
+        //   }
+    //   })
+  
+  });
+  
 
 app.post('/api/users/login',(req,res)=>{
     User.findOne({where: {'email': req.body.email}},(err, user)=>{

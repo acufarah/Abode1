@@ -13,37 +13,16 @@ module.exports = (sequelize, DataTypes) => {
     organization: DataTypes.STRING,
     firstName: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        len: {
-          args: [0, 50],
-          msg: 'Cannot exceed 50 characters'
-        }
-      }
+      allowNull: false
     },
     lastName: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        len: {
-          args: [0, 100],
-          msg: 'Cannot exceed 50 characters'
-        }
-      }
+      allowNull: false
     },
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
-      validate: {
-        isEmail: {
-          msg: 'Not the correct email format.'
-        },
-        isUnique: connection.validateIsUnique(
-          'email',
-          'This email already exists.'
-        )
-      }
+      unique: true
     },
     password: {
       type: DataTypes.STRING,
@@ -111,8 +90,10 @@ module.exports = (sequelize, DataTypes) => {
 });
   User.associate = function(models) {
     // associations can be defined here
-    this.hasMany(Item);
+    this.hasMany(models.Item);
   };
   return User;
 };
+
+
 
