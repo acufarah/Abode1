@@ -52,14 +52,12 @@ sequelize
 //Models
 
 var model = require('./models');
-const User = sequelize.import('./models/users')
-// var User = sequelize.import('./models/users')
-// const { User } = require('./models/users');
-// const { Item } = require('./models/items');
+const User = sequelize.import('./models/users');
+const Item = sequelize.import('./models/items');
 
 //Middleware
 const { auth } = require('./middleware/auth');
-const { admin } = require('./middleware/admin'); 
+// const { admin } = require('./middleware/admin'); 
 
 app.get('/', function (req, res) {
    res.send('Hello World');
@@ -69,6 +67,8 @@ app.get('/', function (req, res) {
 //                       USERS
 //============================================================
 
+const jwt= require('jsonwebtoken');
+const bcrypt = require('bcrypt-nodejs');
 
 app.get('/api/users/auth',auth,(req,res)=>{
 
@@ -76,11 +76,14 @@ app.get('/api/users/auth',auth,(req,res)=>{
             isAdmin: req.user.role === 0 ? false : true,
             isAuth: true,
             email: req.user.email,
-            firstName: req.user.firstName,
-            lastName: req.user.lastname,
-            role: req.user.role
+            name: req.user.name,
+            lastname: req.user.lastname,
+            role: req.user.role,
+            cart: req.user.cart,
+            history: req.user.history
     })
 })
+
 
 app.post('/api/users/register',(req,res)=>{
 
@@ -94,14 +97,15 @@ app.post('/api/users/register',(req,res)=>{
     const city = req.body.city;
     const state = req.body.state;
     const zip = req.body.zip;
+    let salt = bcrypt.genSaltSync(10);
 
     const user = User.create({
         firstName,
         lastName,
         email,
-        password,
+        password: bcrypt.hashSync( password , salt),
         organization,
-        phone,
+        phone, 
         address,
         city,
         state,
@@ -111,41 +115,44 @@ app.post('/api/users/register',(req,res)=>{
           console.log(`New user ${newUser.lastName}, with id ${newUser.uuid} has been created.`);
           res.json(newUser);
         })
-        // .end(function(err, res){
-        //   if (err) {
-        //     // handle error
-        //     return res.json({registerSuccess: false, err});
-        //   } else {
-        //     // handle success
-        //     res.status(200).json({registerSuccess: true});
-        //   }
-    //   })
+        .catch(error => {
+            res.send("Fail! Error -> " + err);
+        });
   
   });
   
 
 app.post('/api/users/login',(req,res)=>{
-    User.findOne({where: {'email': req.body.email}},(err, user)=>{
-        if(!user) return res.json({loginSuccess:false, 
-            message:"Email not found, authorization failed."});
+    const email= req.body.email;
+    let user = User.findOne({where: { email: email}})
 
-        user.validPassword(req.body.password,(err,isMatch)=>{
-            if(!isMatch) return res.json({loginSuccess: false,
-            message:"Incorrect password, authorization failed."});
-
-            user.generateToken((err,user)=>{
-                if(err) return res.status(400).send(err);
-                res.cookie('w_auth', user.token).status(200).json({
-                    loginSuccess:true
-                })
-            })
-        })
-    })
-})
-
-app.get('/api/users/logout',auth,(req,res)=>{
+    .then( user =>{
     
-    let user = User.find({where: { uuid: req.user.uuid}});
+		if (!user) {
+			return res.status(404).send('User Not Found.');
+		}
+ 
+		var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
+		if (!passwordIsValid) {
+			return res.status(401).send({ auth: false, accessToken: null, reason: "Invalid Password!" });
+		}
+		
+		var token = jwt.sign({id:user.uuid}, process.env.SECRET, {
+            expiresIn: 86400 // expires in 24 hours
+          });
+        
+        user.token= token;
+		
+		res.cookie('w_auth', user.token).status(200).json({
+            loginSuccess:true
+        })
+		
+    })
+});
+
+app.get('/api/users/logout',(req,res)=>{
+    
+    let user = User.findOne({where: { uuid: req.user.uuid}});
 
     user.update({ token: ''}).then((err, doc)=>{
         if(err) return res.json({ success:false,err});
