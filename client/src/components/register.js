@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-//import FormField from '../utils/Form/formfield';
+import FormField from '../utils/Form/formfield';
 //import { update, generateData, isFormValid } from '../utils/Form/formActions';
 //import { registerUser } from '../../actions/user_actions';
 import { withRouter } from 'react-router-dom';
@@ -215,4 +215,4 @@ class Register extends Component{
     }
 }
 
-export default connect()(withRouter(Register));
+export default Register;

@@ -137,35 +137,54 @@ app.post('/api/users/login',(req,res)=>{
 			return res.status(401).send({ auth: false, accessToken: null, reason: "Invalid Password!" });
 		}
 		
-		var token = jwt.sign({id:user.uuid}, process.env.SECRET, {
+		var token = jwt.sign({uuid :user.uuid}, process.env.SECRET, {
             expiresIn: 86400 // expires in 24 hours
           });
         
-        user.token= token;
 		
-		res.cookie('w_auth', user.token).status(200).json({
+		res.cookie('w_auth', token).status(200).json({
+            token: token,
             loginSuccess:true
         })
 		
     })
 });
 
-app.get('/api/users/logout',(req,res)=>{
-    
-    let user = User.findOne({where: { uuid: req.user.uuid}});
+// Token will be removed on front end for logout functioning
 
-    user.update({ token: ''}).then((err, doc)=>{
-        if(err) return res.json({ success:false,err});
-        res.status(200).json({
-            success:true
-        })
-    })
 
-})
+// app.patch('/api/user/logout',auth,(req,res)=>{
+
+//     // jwt.verify(token, process.env.SECRET, function(err,decode){
+//     //     User.findOne({where: {'uuid':decode, 'token':token }
+//     //   })
+//     const newData = {
+//         'token' : ''
+//     }
+
+//     User.update(newData, {where:{'token': req.body.token}})
+//       .then((err, doc)=>{
+//             if(err) return res.json({ success:false,err});
+//             res.status(200).json({
+//                 success:true
+//             })
+//         })
+      
+//     //   user.update({ token: ''}).then((err, doc)=>{
+//     //     if(err) return res.json({ success:false,err});
+//     //     res.status(200).json({
+//     //         success:true
+//     //     })
+//     // })
+//     // })
+
+   
+
+// })
 
 var server = app.listen(8081, function () {
     var host = server.address().address
     var port = server.address().port
     
     console.log("Example app listening at http://%s:%s", host, port)
- })
+ }) 
