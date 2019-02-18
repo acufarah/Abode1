@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import FormField from '../utils/Form/formfield';
-//import { update, generateData, isFormValid } from '../utils/Form/formActions';
+import { update, generateData, isFormValid } from '../utils/Form/formActions';
 //import { registerUser } from '../../actions/user_actions';
 import { withRouter } from 'react-router-dom';
 import Dialog from '@material-ui/core/Dialog';
