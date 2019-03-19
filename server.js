@@ -96,28 +96,38 @@ app.post('/api/users/register',(req,res)=>{
     const address = req.body.address;
     const city = req.body.city;
     const state = req.body.state;
-    const zip = req.body.zip;
+    const zip = req.body.zip;{
     let salt = bcrypt.genSaltSync(10);
 
-    const user = User.create({
-        firstName,
-        lastName,
-        email,
-        password: bcrypt.hashSync( password , salt),
-        organization,
-        phone, 
-        address,
-        city,
-        state,
-        zip
-      })
-        .then(newUser => {
-          console.log(`New user ${newUser.lastName}, with id ${newUser.uuid} has been created.`);
-          res.json(newUser);
+    User.findAndCountAll({where:{ email: req.body.email}}).then(count =>{
+      if(count > 0){
+        return res.send("Fail! Error -> User with this email already exists, try again.")
+      }
+      else{
+        const user = User.create({
+          firstName,
+          lastName,
+          email,
+          password: bcrypt.hashSync( password , salt),
+          organization,
+          phone, 
+          address,
+          city,
+          state,
+          zip
         })
-        .catch(error => {
-            res.send("Fail! Error -> " + err);
-        });
+          .then(newUser => {
+            console.log(`New user ${newUser.lastName}, with id ${newUser.uuid} has been created.`);
+            res.json(newUser);
+          })
+          .catch(error => {
+              res.send("Fail! Error -> " + error);
+          });
+      }
+    })
+  }
+
+
   
   });
   
@@ -150,37 +160,81 @@ app.post('/api/users/login',(req,res)=>{
     })
 });
 
-// Token will be removed on front end for logout functioning
 
 
-// app.patch('/api/user/logout',auth,(req,res)=>{
+app.get('/api/user/logout',auth,(req,res)=>{
+    res.clearCookie('w_auth')
+    res.send('Logout successful')
+    })
 
-//     // jwt.verify(token, process.env.SECRET, function(err,decode){
-//     //     User.findOne({where: {'uuid':decode, 'token':token }
-//     //   })
-//     const newData = {
-//         'token' : ''
-//     }
 
-//     User.update(newData, {where:{'token': req.body.token}})
-//       .then((err, doc)=>{
-//             if(err) return res.json({ success:false,err});
-//             res.status(200).json({
-//                 success:true
-//             })
-//         })
-      
-//     //   user.update({ token: ''}).then((err, doc)=>{
-//     //     if(err) return res.json({ success:false,err});
-//     //     res.status(200).json({
-//     //         success:true
-//     //     })
-//     // })
-//     // })
+//-----------------------------------------------------------------------------------------------------------------
+                                                    // ITEMS
+//-----------------------------------------------------------------------------------------------------------------
 
-   
+app.post('/api/item',auth,(req,res)=>{
+  const type = req.body.type;
+  const name = req.body.name;
+  const imgURL = req.body.imgURL;
+  const description = req.body.description;
+  const availDate = req.body.availDate
+
+  const item = Item.create({
+                            type,
+                            name,
+                            imgURL,
+                            description,
+                            availDate
+  })
+  .then(newItem => {
+    console.log(`New item ${newItem.name}, of type ${newUser.type} has been created.`);
+    res.status(200).json(newItem);
+  })
+  .catch(error => {
+      res.send("Fail! Error -> " + error);
+  });
+})
+
+// app.get('/api/items',(req,res)=>{
+//   let order = req.query.order ? req.query.order : 'asc';
+//   let sortBy = req.query.sortBy ? req.query.sortBy : '_id';
+//   let limit = req.query.limit ? parseInt(req.query.limit) : 100;
+
+//   Item.
+//   find().
+//   populate('brand').
+//   populate('wood').
+//   sort([[sortBy,order]]).
+//   limit(limit).
+//   exec((err,articles)=>{
+//       if(err) return res.status(400).send(err);
+//       return res.send(articles);
+//   })
 
 // })
+
+// app.get('/api/items/articles_by_id',(req,res)=>{
+//   let type = req.query.type;
+//   let items = req.query.id;
+
+//   if (type==="array"){
+//       let ids = req.query.id.split(",");
+//       items = [];
+//       items = ids.map(item =>{
+//           return mongoose.Types.ObjectId(item)
+//       })
+//   }
+//   Product.
+//   find({'_id':{$in:items}}).
+//   populate('brand').
+//   populate('wood').
+//   exec((err,docs)=>{
+//       return res.status(200).send(docs)
+//   })
+// });
+
+
+
 
 var server = app.listen(8081, function () {
     var host = server.address().address

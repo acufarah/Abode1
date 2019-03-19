@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import FormField from '../utils/Form/formfield';
 import { update, generateData, isFormValid } from '../utils/Form/formActions';
-//import { registerUser } from '../../actions/user_actions';
+import { registerUser } from './../actions/user_actions';
 import { withRouter } from 'react-router-dom';
 import Dialog from '@material-ui/core/Dialog';
 
@@ -12,7 +12,7 @@ class Register extends Component{
         formError: false,
         formSuccess: false,
         formdata:{
-            name:{
+            firstName:{
                 element: 'input',
                 value: '',
                 config: {
@@ -29,7 +29,7 @@ class Register extends Component{
                 touched: false,
                 validationMessage: '' 
             },
-            lastname:{
+            lastName:{
                 element: 'input',
                 value: '',
                 config: {
@@ -97,51 +97,51 @@ class Register extends Component{
             
     }
 }
-// updateForm= (element)=>{
-//     const newFormdata= update(element, this.state.formdata,'register')
-//     this.setState({
-//         formError: false,
-//         formdata: newFormdata
-//     })
-// }
+updateForm= (element)=>{
+    const newFormdata= update(element, this.state.formdata,'register')
+    this.setState({
+        formError: false,
+        formdata: newFormdata
+    })
+}
 
 
-// submitForm=(event)=>{
-//     event.preventDefault();
+submitForm=(event)=>{
+    event.preventDefault();
 
-//     let dataToSubmit= generateData(this.state.formdata,'register');
-//     let formIsValid= isFormValid(this.state.formdata,'register');
+    let dataToSubmit= generateData(this.state.formdata,'register');
+    let formIsValid= isFormValid(this.state.formdata,'register');
 
-//     if(formIsValid){
-//         console.log(dataToSubmit);
-//         this.props.dispatch(registerUser(dataToSubmit)).then(response =>{
-//             if(response.payload.registerSuccess){
-//                 console.log(response.payload);
-//                 this.setState({
-//                     formError: false,
-//                     formSuccess: true
-//                 });
-//                 setTimeout(()=>{
-//                     this.props.history.push('/register_login');
-//                 }, 3000)
-//             }
-//             else{
-//                 this.setState({
-//                     formError: true
-//                 })
-//             }
-//         }).catch(e=>{
-//                 this.setState({
-//                     formError: true
-//                 })
-//         })
-//     }else{
-//         this.setState({
-//             formError: true
-//         })
-//     }
+    if(formIsValid){
+        //console.log(dataToSubmit);
+        this.props.dispatch(registerUser(dataToSubmit)).then(response =>{
+            if(response.payload){
+                console.log(response.payload);
+                this.setState({
+                    formError: false,
+                    formSuccess: true
+                });
+                setTimeout(()=>{
+                    this.props.history.push('/login');
+                }, 3000)
+            }
+            else{
+                this.setState({
+                    formError: true
+                })
+            }
+        }).catch(e=>{
+                this.setState({
+                    formError: true
+                })
+        })
+    }else{
+        this.setState({
+            formError: true
+        })
+    }
 
-// }
+}
 
     render(){
         return(
@@ -162,52 +162,56 @@ class Register extends Component{
                                             
                                                     <h2>Personal Information</h2>
                                                     
-                                                        
+                                                      
                                                             <FormField
-                                                                id={'name'}
-                                                                formdata={this.state.formdata.name}
+                                                                id={'firstName'}
+                                                                formdata={this.state.formdata.firstName}
                                                                 change={(element)=> this.updateForm(element)}
                                                             />
                                                         
-                                                        
+                                                       
                                                             <FormField
-                                                                id={'lastname'}
-                                                                formdata={this.state.formdata.lastname}
+                                                                id={'lastName'}
+                                                                formdata={this.state.formdata.lastName}
                                                                 change={(element)=> this.updateForm(element)}
                                                             />
                                                         
+                                                      
                                                         
-                                                    
-                                                        <FormField
-                                                            id={'email'}
-                                                            formdata={this.state.formdata.email}
-                                                            change={(element)=> this.updateForm(element)}
-                                                        />
-                                                    
+                                                            <FormField
+                                                                id={'email'}
+                                                                formdata={this.state.formdata.email}
+                                                                change={(element)=> this.updateForm(element)}
+                                                            />
+                                                      
                                                         <h2>Verify Password</h2>
-                                                    
+                                                           
                                                                 <FormField
                                                                     id={'password'}
                                                                     formdata={this.state.formdata.password}
                                                                     change={(element)=> this.updateForm(element)}
                                                                 />
-                                                        
+                                                         
                                                             
                                                                 <FormField
                                                                     id={'confirmPassword'}
                                                                     formdata={this.state.formdata.confirmPassword}
                                                                     change={(element)=> this.updateForm(element)}
                                                                 />
-                                                        
+                                                            
                                                     
                                                         <div>
-                                                            {this.state.formError ?
+                                                            {this.state.formError===true ?
                                                             <div className="error_label">
                                                                 Please check your data.
                                                             </div>
                                                             : null}
-                                                            <button onClick={(event)=>this.submitForm(event)}>
-                                                            Create An Account</button>
+                                                            <input
+                                                                type='submit'
+                                                                value='Register'
+                                                                className='btn btn-primary btn-block'
+                                                                onClick= {(event)=>this.submitForm(event)}
+                                                            />
                                                         </div>
                                                    
                                                 </form>
@@ -234,4 +238,4 @@ class Register extends Component{
     }
 }
 
-export default Register;
+export default connect()(withRouter(Register));

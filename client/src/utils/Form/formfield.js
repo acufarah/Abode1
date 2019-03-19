@@ -21,10 +21,11 @@ const Formfield= ({ formdata,change,id })=>{
         switch(formdata.element){
             case ('input'):
                 formTemplate= (
-                    <div className="formBlock">
+                    <div className='form-group'>
                         <input
                             {...formdata.config}
                             value={formdata.value}
+                            className='form-control'
                             onBlur={(event)=> change({event,id,blur:true})}
                             onChange= {(event)=> change({event, id})}
                         />
