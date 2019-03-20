@@ -177,14 +177,16 @@ app.post('/api/item',auth,(req,res)=>{
   const name = req.body.name;
   const imgURL = req.body.imgURL;
   const description = req.body.description;
-  const availDate = req.body.availDate
+  const availDate = req.body.availDate;
+  const organization = req.body.organization;
 
   const item = Item.create({
                             type,
                             name,
                             imgURL,
                             description,
-                            availDate
+                            availDate,
+                            organization
   })
   .then(newItem => {
     console.log(`New item ${newItem.name}, of type ${newUser.type} has been created.`);
