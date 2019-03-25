@@ -1,6 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const formidable = require('express-formidable');
+const cloudinary = require('cloudinary');
+require('dotenv').config();
 
 
 const app = express();
@@ -10,6 +13,12 @@ require('dotenv').config();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+
+cloudinary.config({
+                  cloud_name: process.env.CLOUD_NAME,
+                  api_key: process.env.API_KEY,
+                  api_secret: process.env.API_SECRET
+                  })
 
 const sqlite= require('sqlite3');
 const db= new sqlite.Database('./database.sqlite3', (err)=> console.log(err));
@@ -166,6 +175,19 @@ app.get('/api/user/logout',auth,(req,res)=>{
     res.clearCookie('w_auth')
     res.send('Logout successful')
     })
+
+
+app.post('api/users/uploadimage',auth,formidable(),(req,res)=>{
+    cloudinary.uploader.upload(req.files.file.path,(result)=>{
+      console.log(result);
+      res.status200.send({
+        public_id : result.public_id,
+        url: result.url
+        }, {
+        public_id:`${Date.now()}`,
+        resource_type: 'auto'
+    })
+})
 
 
 //-----------------------------------------------------------------------------------------------------------------

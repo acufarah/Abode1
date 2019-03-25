@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import FileUpload from './fileupload';
 import { generateData} from '../utils/Form/formActions';
 import { listNewItem } from './../actions/item_actions';
 import { withRouter } from 'react-router-dom';
@@ -16,7 +17,10 @@ class NewListing extends Component{
                         itemType: '',
                         availDate: '',
                         description: '',
-                        imgURL: ''
+                        imgURL: '',
+                        images:{
+                            value: []
+                        }
                     }
             }
     
@@ -55,30 +59,53 @@ class NewListing extends Component{
                 })
         })
     }
+
+
+    imagesHandler = ()=>{
+
+    }
+
+
     render() {
     
       return (
         <div>
+            <center>
           <div className='row'>
               <div className='col-md-6'>
                   <Link to="/" className='btn btn-link'>
                       <i className='fas fa-arrow-circle-left'/>
                       {' '}Back to Dashboard
                   </Link>
+                  
               </div>
           </div>
-          <div className='card'>
-              <div className='card-header'>
-              Add New Listing
-              </div>
-              <div className='card-body'>
+          <div className = "row"></div>
+                <div className='col-md-6 mx-auto'>
+                    <h2 className="text-center">Add New Listing</h2>
+                <center>
+                    <div className="card shadow p-3 mb-5 bg-white rounded">
+                    
+                        <div className="card-body">
+                            
+                    
+                                
+                                    <div className='form-group row justify-content-center align-items-center'>
+        
                   <form onSubmit={this.onSubmit}>
+                      <div className= 'form-group'>
+                       <FileUpload
+                          imagesHandler = {(images)=> this.imagesHandler(images)}
+                          reset = {this.state.formSuccess}
+                        />
+
+                      </div>
                       <div className='form-group'>
-                          <label htmlFor='itemName'>Item Name</label>
+                          <label htmlFor='itemName'><h4>Item Name</h4></label>
                           <input type='text' 
                                  className='form-control' 
                                  name='itemName'
-                                 placeholder='item name'
+                                
                                  minLength='2'
                                  required
                                  onChange={this.onChange}
@@ -86,7 +113,7 @@ class NewListing extends Component{
                           />
                       </div>
                       <div className = 'form-group'>
-                      <label htmlFor= 'itemType'>Item Type</label>
+                      <label htmlFor= 'itemType'><h4>Item Type</h4></label>
                       <select name="itemType"
                             className='form-control'
                             required
@@ -97,11 +124,13 @@ class NewListing extends Component{
                       </select>
                       </div>
                       <div className='form-group'>
-                          <label htmlFor='description'>Item Description</label>
-                          <input type='text' 
-                                 className='form-control' 
+                          <label htmlFor='description'><h4>Item Description</h4></label>
+                          <textarea
+                                 rows= "4"
+                                 cols= "50"
+                                 className='form-control'
                                  name='description'
-                                 placeholder='Describe item: condition, appearance, usability, etc.'
+                                 placeholder='Describe condition, appearance, usability, etc.'
                                  onChange={this.onChange}
                                  value={this.state.description}
                           />
@@ -109,9 +138,17 @@ class NewListing extends Component{
                     
                       <input type='submit' value='Submit' className='btn btn-primary btn-block'/>
                   </form>
-              </div> 
-          </div>
+            
+                </div>
+        
+        
+                            
+            </div>
         </div>
+        </center>
+    </div>
+    </center>
+    </div>
       )
     }
   }
